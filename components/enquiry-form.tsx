@@ -1,0 +1,10 @@
+'use client';
+import { useState } from 'react';
+import { Send, CheckCircle2 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { isSupabaseConfigured } from '@/lib/config';
+export function EnquiryForm({ propertyTitle }: { propertyTitle?: string }) {
+ const [status,setStatus]=useState(''); const [busy,setBusy]=useState(false);
+ async function submit(event: React.FormEvent<HTMLFormElement>) { event.preventDefault(); if (!isSupabaseConfigured()) { setStatus('Enquiry form is not connected yet. Please call or WhatsApp us.'); return; } setBusy(true); const form=new FormData(event.currentTarget); const payload={name:String(form.get('name')),phone:String(form.get('phone')),email:String(form.get('email')||''),message:String(form.get('message')||''),property_interest:propertyTitle||String(form.get('interest')||''),source:'website'}; const {error}=await createClient().from('leads').insert(payload); setBusy(false); if(error) setStatus('We could not send that just now. Please call or WhatsApp us.'); else {setStatus('Thank you — your enquiry is on its way.'); event.currentTarget.reset();} }
+ return <form className="enquiry-form" onSubmit={submit}><label>Your name<input name="name" required placeholder="Name" autoComplete="name"/></label><label>Phone number<input name="phone" required type="tel" placeholder="+91" autoComplete="tel"/></label><label>Email address<input name="email" type="email" placeholder="you@example.com" autoComplete="email"/></label>{!propertyTitle&&<label>I'm interested in<select name="interest"><option>Buying a home</option><option>Apartments</option><option>Villas & houses</option><option>Residential plots</option></select></label>}<label className="full-field">A little more about what you need<textarea name="message" rows={4} placeholder="Preferred area, budget, or any questions…"/></label><button className="button button-dark" disabled={busy}>{busy?'Sending…':'Send enquiry'} <Send size={15}/></button>{status&&<p className="form-status"><CheckCircle2 size={16}/>{status}</p>}</form>;
+}
