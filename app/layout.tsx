@@ -9,6 +9,11 @@ export const metadata: Metadata = {
     template: '%s | JANKI Real Estate Group',
   },
   description: 'Discover thoughtfully selected apartments, villas, houses and residential plots in Jaipur with JANKI Real Estate Group.',
+  openGraph: {
+    type: 'website',
+    title: 'JANKI Real Estate Group',
+    description: 'Find your place. Build your future.',
+  },
   robots: { index: true, follow: true },
 };
 

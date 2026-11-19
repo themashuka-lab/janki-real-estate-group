@@ -1,8 +1,3 @@
-import type { Metadata } from 'next';
-
-export default function robots(): Metadata['robots'] {
-  return {
-    index: false,
-    follow: false,
-  };
+export async function GET() {
+  return new Response(null, { status: 404, headers: { 'Cache-Control': 'no-store' } });
 }

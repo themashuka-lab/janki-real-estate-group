@@ -1,57 +1,45 @@
 # JANKI REAL ESTATE GROUP
 
-A responsive Next.js residential real-estate website and private Supabase CRM starter.
-
-## Production setup
-
-1. Create a Supabase project.
-2. Run `supabase/schema.sql` in the Supabase SQL editor.
-3. Create the first owner account through Supabase Authentication.
-4. Promote the account:
-
-```sql
-update public.profiles set role = 'admin' where id = '<auth-user-uuid>';
-```
-
-5. Set these Vercel environment variables:
-
-```text
-NEXT_PUBLIC_SUPABASE_URL=<project-url>
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
-NEXT_PUBLIC_SITE_URL=https://your-production-domain.com
-```
-
-6. Import this repository into Vercel and deploy.
-
-## Local setup
-
-```bash
-npm install
-cp .env.example .env.local
-npm run dev
-```
-
-Open `http://localhost:3000`. The public demo renders without Supabase, while enquiries and `/admin` require the configured environment variables.
+Premium residential real-estate platform and private CRM.
 
 ## Public routes
 
-- `/` — brand and featured homes
+- `/` — animated brand experience
 - `/properties` — residential listings
-- `/properties/[slug]` — property detail
-- `/buy` — listings and EMI estimate
+- `/properties/[slug]` — property details and enquiry
+- `/buy` — buy overview and EMI calculator
 - `/about` — company story
 - `/contact` — enquiry form
 
 ## Private routes
 
 - `/admin/login` — administrator sign-in
-- `/admin` — lead and inventory overview
-- `/admin/properties` — property management
+- `/admin` — overview and recent enquiries
+- `/admin/properties` — add, publish, unpublish and delete listings
 
-## Security checklist
+## Setup
 
-- Never expose the Supabase service-role key.
-- Disable public Supabase signups after creating authorized accounts.
-- Enable email confirmation and a strong password policy.
-- Replace placeholder property inventory and business contact details.
-- Configure HTTPS and a custom domain before launch.
+```bash
+npm install
+cp .env.example .env.local
+```
+
+Create a Supabase project, run `supabase/schema.sql`, then set:
+
+```text
+NEXT_PUBLIC_SUPABASE_URL=<project-url>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+```
+
+Create the first owner account in Supabase Authentication. The schema automatically creates a staff profile, then promote the owner once:
+
+```sql
+update public.profiles set role = 'admin' where id = '<auth-user-uuid>';
+```
+
+Run `npm run dev` and open `http://localhost:3000`.
+
+## Production
+
+Import the repository into Vercel, add the three environment variables, and deploy. Never expose the Supabase service-role key. Disable public signups after creating authorized staff accounts. Replace placeholder inventory and contact details before launch.

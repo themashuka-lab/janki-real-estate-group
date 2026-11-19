@@ -84,9 +84,35 @@ create table public.activity_logs (
   created_at timestamptz not null default now()
 );
 
-create or replace function public.is_admin() returns boolean language sql stable security definer set search_path = public as $$
-  select exists (select 1 from public.profiles where id = (select auth.uid()) and role = 'admin');
+create or replace function public.is_admin() returns boolean
+language sql stable security definer set search_path = public
+as $$
+  select exists (
+    select 1 from public.profiles
+    where id = (select auth.uid()) and role = 'admin'
+  );
 $$;
+
+create or replace function public.handle_new_auth_user()
+returns trigger
+language plpgsql security definer set search_path = public
+as $$
+begin
+  insert into public.profiles (id, full_name, role)
+  values (
+    new.id,
+    coalesce(new.raw_user_meta_data->>'full_name', new.email, ''),
+    'staff'
+  )
+  on conflict (id) do nothing;
+  return new;
+end;
+$$;
+
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_auth_user();
 
 alter table public.profiles enable row level security;
 alter table public.properties enable row level security;
@@ -104,7 +130,7 @@ create policy "Public can view published properties" on public.properties for se
 create policy "Admins manage properties" on public.properties for all to authenticated using (public.is_admin()) with check (public.is_admin());
 create policy "Public can view media for published listings" on public.property_media for select to anon, authenticated using (exists(select 1 from public.properties p where p.id = property_id and p.status = 'published') or public.is_admin());
 create policy "Admins manage property media" on public.property_media for all to authenticated using (public.is_admin()) with check (public.is_admin());
-create policy "Visitors can send enquiries" on public.leads for insert to anon, authenticated with check (status = 'new' and length(name) between 2 and 100 and length(phone) between 7 and 30 and source = 'website');
+create policy "Visitors can send enquiries" on public.leads for insert to anon, authenticated with check (status = 'new' and char_length(name) between 2 and 100 and char_length(phone) between 7 and 30 and source = 'website');
 create policy "Admins manage leads" on public.leads for all to authenticated using (public.is_admin()) with check (public.is_admin());
 create policy "Admins manage site visits" on public.site_visits for all to authenticated using (public.is_admin()) with check (public.is_admin());
 create policy "Admins manage followups" on public.followups for all to authenticated using (public.is_admin()) with check (public.is_admin());
@@ -114,7 +140,7 @@ create policy "Admins manage content calendar" on public.content_posts for all t
 create policy "Admins read activity logs" on public.activity_logs for select to authenticated using (public.is_admin());
 create policy "Admins add activity logs" on public.activity_logs for insert to authenticated with check (public.is_admin());
 
-grant usage on schema public to anon, authenticated;
+gr ant usage on schema public to anon, authenticated;
 grant select on public.properties, public.property_media, public.reviews to anon, authenticated;
 grant insert on public.leads to anon, authenticated;
 grant all on public.profiles, public.properties, public.property_media, public.leads, public.site_visits, public.followups, public.reviews, public.content_posts, public.activity_logs to authenticated;
