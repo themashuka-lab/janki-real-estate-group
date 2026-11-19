@@ -1,23 +1,57 @@
 # JANKI REAL ESTATE GROUP
 
-Premium residential property discovery and business CRM for Jaipur.
+A responsive Next.js residential real-estate website and private Supabase CRM starter.
 
-## Run locally
+## Production setup
 
-1. Install Node.js 20+ and run `npm install`.
-2. Copy `.env.example` to `.env.local` and add your Supabase project URL and anon key.
-3. Run the SQL in `supabase/schema.sql` in the Supabase SQL editor.
-4. Create an administrator using Supabase Authentication, then promote their profile with:
-   `UPDATE public.profiles SET role = 'admin' WHERE id = '<auth-user-uuid>';`
-5. Run `npm run dev` and open `http://localhost:3000`.
+1. Create a Supabase project.
+2. Run `supabase/schema.sql` in the Supabase SQL editor.
+3. Create the first owner account through Supabase Authentication.
+4. Promote the account:
 
-The public website renders without Supabase credentials, but lead capture and the private dashboard need a configured project. Admin registration is intentionally not exposed publicly. Set authentication email confirmation and disable public signups in Supabase before launch. Configure production environment variables and a custom domain at your host (e.g. Vercel).
+```sql
+update public.profiles set role = 'admin' where id = '<auth-user-uuid>';
+```
 
-## Included
+5. Set these Vercel environment variables:
 
-- Responsive, motion-enhanced public home and residential listings.
-- Listing details and enquiry forms that write to Supabase.
-- `/admin/login` sign-in and `/admin` CRM dashboard, protected by Supabase Auth and an administrator role.
-- Initial schema with RLS policies for properties, leads, visits, follow-ups, reviews, content and activity records.
+```text
+NEXT_PUBLIC_SUPABASE_URL=<project-url>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
+NEXT_PUBLIC_SITE_URL=https://your-production-domain.com
+```
 
-Do not put a Supabase service-role key in the browser or commit credentials. Review free-tier quotas and commercial terms before launch.
+6. Import this repository into Vercel and deploy.
+
+## Local setup
+
+```bash
+npm install
+cp .env.example .env.local
+npm run dev
+```
+
+Open `http://localhost:3000`. The public demo renders without Supabase, while enquiries and `/admin` require the configured environment variables.
+
+## Public routes
+
+- `/` — brand and featured homes
+- `/properties` — residential listings
+- `/properties/[slug]` — property detail
+- `/buy` — listings and EMI estimate
+- `/about` — company story
+- `/contact` — enquiry form
+
+## Private routes
+
+- `/admin/login` — administrator sign-in
+- `/admin` — lead and inventory overview
+- `/admin/properties` — property management
+
+## Security checklist
+
+- Never expose the Supabase service-role key.
+- Disable public Supabase signups after creating authorized accounts.
+- Enable email confirmation and a strong password policy.
+- Replace placeholder property inventory and business contact details.
+- Configure HTTPS and a custom domain before launch.

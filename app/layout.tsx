@@ -1,13 +1,23 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { SiteHeader } from '@/components/site-header';
-import { SiteFooter } from '@/components/site-footer';
+import { SiteChrome } from '@/components/site-chrome';
 
 export const metadata: Metadata = {
-  title: 'JANKI Real Estate Group | Find your place. Build your future.',
-  description: 'Discover considered homes, apartments and residential plots in Jaipur with JANKI Real Estate Group.',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  title: {
+    default: 'JANKI Real Estate Group | Jaipur Homes',
+    template: '%s | JANKI Real Estate Group',
+  },
+  description: 'Discover thoughtfully selected apartments, villas, houses and residential plots in Jaipur with JANKI Real Estate Group.',
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><SiteHeader />{children}<SiteFooter /></body></html>;
+  return (
+    <html lang="en">
+      <body>
+        <SiteChrome>{children}</SiteChrome>
+      </body>
+    </html>
+  );
 }
